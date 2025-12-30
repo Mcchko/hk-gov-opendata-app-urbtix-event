@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>「城市售票網節目」查詢系統</title>
+    <!-- Awesome Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <style>
+        .element-hidden {
+            display: none !important;
+        }
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #1f2937;
+        }
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 100vh;
+        }
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .header h1 {
+            color: #111827;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+        .header .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+        /* Form Section */
+        .form-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 5px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group div {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group label i {
+            color: #0f766e;
+        }
+        .form-control {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+        }
+        .checkbox-group {
+            display: block!important;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checkbox-item label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        .form-actions {
+            display: inline-grid;
+            gap: 12px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+        .data-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+        /* Data Section Styles */
+        .data-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .data-header h2 {
+            color: #111827;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .data-header .subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .data-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #14b8a6;
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        .accordion-container {
+            margin-top: 20px;
+        }
+        .event-group {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .event-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .category-header {
+            background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .category-header.active {
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+        }
+        .category-header i {
+            transition: transform 0.3s ease;
+        }
+        .category-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+        .category-content {
+            padding: 20px;
+            background: white;
+        }
+        .subcategory-group {
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .subcategory-header {
+            background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .subcategory-content {
+            padding: 15px;
+            background: #f8fafc;
+        }
+        .location-group {
+            margin-bottom: 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .location-header {
+            background: #99f6e4;
+            color: #134e4a;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .location-content {
+            padding: 15px;
+            background: white;
+        }
+        .region-group {
+            margin-bottom: 12px;
+            border: 1px solid #a7f3d0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .region-header {
+            background: #ccfbf1;
+            color: #0f766e;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .event-list {
+            display: grid;
+            gap: 12px;
+            padding: 15px;
+        }
+        .event-item {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.2s ease;
+        }
+        .event-item:hover {
+            background: #f1f5f9;
+            border-color: #14b8a6;
+        }
+        .event-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .event-row {
+            display: flex;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .event-label {
+            font-weight: 600;
+            color: #374151;
+            width: 120px;
+            flex-shrink: 0;
+        }
+        .event-value {
+            flex: 1;
+            color: #6b7280;
+            word-break: break-word;
+        }
+        .event-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .badge-category {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-location {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-date {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-link {
+            background: #f3e8ff;
+            color: #5b21b6;
+        }
+        .event-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .performance-section {
+            margin-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+        }
+        .performance-item {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #14b8a6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            padding: 20px;
+            margin-top: auto;
+        }
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            animation: slideIn 0.3s ease-out;
+        }
+        .notification.success {
+            background-color: #10b981;
+            color: white;
+        }
+        .notification.error {
+            background-color: #ef4444;
+            color: white;
+        }
+        .notification.info {
+            background-color: #14b8a6;
+            color: white;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+                background: #0f766e;
+            }
+            .container {
+                gap: 16px;
+            }
+            .header {
+                padding: 16px;
+                border-radius: 12px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .form-section {
+                padding: 20px;
+            }
+            .main-content {
+                flex-direction: column;
+            }
+            .data-section {
+                max-height: 400px;
+                padding: 15px;
+            }
+            .data-header h2 {
+                font-size: 1.3rem;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .event-info {
+                grid-template-columns: 1fr;
+            }
+            .event-row {
+                flex-direction: column;
+                margin-bottom: 12px;
+            }
+            .event-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .category-header {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        /* Desktop Enhancements */
+        @media (min-width: 1200px) {
+            .data-section {
+                max-height: 65vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>「城市售票網節目」查詢系統</h1>
+            <p class="subtitle">康樂及文化事務署節目資訊查詢系統</p>
+        </header>
+        <section class="form-section">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="dataDate">
+                        <i class="fas fa-calendar-alt"></i>
+                        數據日期
+                    </label>
+                    <input type="date" id="dataDate" class="form-control" value="" required>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <i class="fas fa-filter"></i>
+                        顯示選項
+                    </div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showEmptyCategories" checked>
+                            <label for="showEmptyCategories">顯示空分類</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="groupByCategory" checked>
+                            <label for="groupByCategory">按分類分組</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" onclick="loadEvents()">
+                    <i class="fas fa-download"></i>
+                    載入節目資料
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-redo"></i>
+                    重置查詢
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearCache()">
+                    <i class="fas fa-trash-alt"></i>
+                    清除緩存
+                </button>
+            </div>
+        </section>
+        <main class="main-content">
+            <section class="data-section">
+                <div class="data-header">
+                    <h2>節目資訊列表</h2>
+                    <p class="subtitle">點擊分類查看詳細節目資訊</p>
+                </div>
+                <div class="data-stats">
+                    <div class="stat-item">
+                        <span id="total-events" class="stat-value">0</span>
+                        <span class="stat-label">節目總數</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="total-performances" class="stat-value">0</span>
+                        <span class="stat-label">場次總數</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="total-categories" class="stat-value">0</span>
+                        <span class="stat-label">主分類數</span>
+                    </div>
+                </div>
+                <div class="accordion-container" id="accordion-container">
+                    <div class="no-data">
+                        <i class="fas fa-calendar"></i>
+                        <p>請選擇數據日期並點擊「載入節目資料」按鈕</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="footer">
+            <p>「城市售票網節目」查詢系統<br/>資料來源: 康樂及文化事務署<span id="last-updated" hidden></span></p>
+        </footer>
+    </div>
+    <script>
+        const PROXY_URL = "https://cors-anywhere.herokuapp.com";
+        // 全局變量
+        let eventsData = [];
+        let categoriesSet = new Set();
+        let totalPerformances = 0;
+        let db = null;
+        const DB_NAME = 'URBTIX_CACHE';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'events';
+        
+        // IndexedDB 初始化
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve();
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'date' });
+                        store.createIndex('timestamp', 'timestamp', { unique: false });
+                    }
+                };
+            });
+        }
+        
+        // 保存數據到 IndexedDB
+        async function saveToCache(date, data) {
+            if (!db) await initDB();
+            
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const item = {
+                    date: date,
+                    data: data,
+                    timestamp: Date.now()
+                };
+                const request = store.put(item);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve();
+            });
+        }
+        
+        // 從 IndexedDB 讀取數據
+        async function getFromCache(date) {
+            if (!db) await initDB();
+            
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(date);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    const result = request.result;
+                    if (result && (Date.now() - result.timestamp < 24 * 60 * 60 * 1000)) {
+                        resolve(result.data);
+                    } else {
+                        resolve(null);
+                    }
+                };
+            });
+        }
+        
+        // 清除緩存
+        async function clearCache() {
+            try {
+                const request = indexedDB.deleteDatabase(DB_NAME);
+                request.onerror = () => {
+                    showNotification('清除緩存失敗', 'error');
+                };
+                request.onsuccess = () => {
+                    showNotification('緩存已清除', 'success');
+                    resetForm();
+                    db = null;
+                    initDB(); // 重新初始化數據庫
+                };
+            } catch (error) {
+                console.error('清除緩存時出錯:', error);
+                showNotification('清除緩存時出錯', 'error');
+            }
+        }
+        
+        // 初始化應用
+        document.addEventListener('DOMContentLoaded', async function () {
+            // 設置默認日期為今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dataDate').value = today;
+            updateLastUpdatedTime();
+            
+            // 初始化 IndexedDB
+            try {
+                await initDB();
+                showNotification('數據庫已初始化', 'info');
+            } catch (error) {
+                console.error('初始化數據庫時出錯:', error);
+            }
+        });
+        
+        // 更新最後更新時間
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleString('zh-HK', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.getElementById('last-updated').textContent = formattedTime;
+        }
+        
+        // 重置表單
+        function resetForm() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dataDate').value = today;
+            document.getElementById('showEmptyCategories').checked = true;
+            document.getElementById('groupByCategory').checked = true;
+            clearEventsData();
+        }
+        
+        // 清除節目資料
+        function clearEventsData() {
+            eventsData = [];
+            categoriesSet.clear();
+            totalPerformances = 0;
+            updateStatistics();
+            const container = document.getElementById('accordion-container');
+            container.innerHTML = '<div class="no-data"><i class="fas fa-calendar"></i><p>請選擇數據日期並點擊「載入節目資料」按鈕</p></div>';
+        }
+        
+        // 載入節目資料
+        async function loadEvents() {
+            const dataDate = document.getElementById('dataDate').value;
+            
+            // 驗證日期格式
+            if (!dataDate || !/^\d{4}-\d{2}-\d{2}$/.test(dataDate)) {
+                showNotification('請輸入有效的日期格式 (yyyy-MM-dd)', 'error');
+                return;
+            }
+            
+            // 檢查緩存
+            try {
+                const cachedData = await getFromCache(dataDate.replaceAll('-', ''));
+                if (cachedData) {
+                    showNotification('從緩存載入數據', 'info');
+                    processEventsData(cachedData);
+                    updateEventList(cachedData);
+                    updateStatistics();
+                    updateLastUpdatedTime();
+                    return;
+                }
+            } catch (error) {
+                console.warn('讀取緩存時出錯:', error);
+            }
+            
+            // 顯示加載狀態
+            const container = document.getElementById('accordion-container');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在載入節目資料...</p>
+                </div>
+            `;
+            
+            try {
+                // 構建 API URL
+                const dateStr = dataDate.replaceAll('-', '');
+                const DATA_SOURCE_URL = `https://fs-open-1304240968.cos.ap-hongkong.myqcloud.com/prod/gprd/URBTIX_eventBatch_${dateStr}.xml`;
+                
+                const response = await fetch(`${PROXY_URL}/${DATA_SOURCE_URL}`);
+                
+                if (!response.ok) {
+                    alert(`請瀏覽 ${PROXY_URL}，啟用 Proxy。`);
+                    window.open(PROXY_URL, "_blank");
+                    return;
+                }
+                
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                
+                // 解析 XML 數據
+                const events = xmlDoc.querySelectorAll('EVENT');
+                const eventsArray = Array.from(events).map(event => {
+                    const eventCode = event.querySelector('EVENT_CODE')?.textContent || '';
+                    const eventTC = event.querySelector('EVENT_TC')?.textContent || '';
+                    const eventEG = event.querySelector('EVENT_EG')?.textContent || '';
+                    const startDate = event.querySelector('ST_DATE')?.textContent || '';
+                    const endDate = event.querySelector('ED_DATE')?.textContent || '';
+                    const referenceLink = event.querySelector('REFERENCE_LINK')?.textContent || '';
+                    
+                    const mainCatTC = event.querySelector('CATEGORY > MAIN_CAT > TC')?.textContent || '';
+                    const mainCatEG = event.querySelector('CATEGORY > MAIN_CAT > EG')?.textContent || '';
+                    const subCatTC = event.querySelector('CATEGORY > SUB_CAT > TC')?.textContent || '';
+                    const subCatEG = event.querySelector('CATEGORY > SUB_CAT > EG')?.textContent || '';
+                    
+                    const venueCode = event.querySelector('LOCATION > VENUE_CODE')?.textContent || '';
+                    const venueTC = event.querySelector('LOCATION > VENUE_TC')?.textContent || '';
+                    const venueEG = event.querySelector('LOCATION > VENUE_EG')?.textContent || '';
+                    const cityTC = event.querySelector('LOCATION > CITY_TC')?.textContent || '';
+                    const cityEG = event.querySelector('LOCATION > CITY_EG')?.textContent || '';
+                    const regionTC = event.querySelector('LOCATION > REGION_TC')?.textContent || '';
+                    const regionEG = event.querySelector('LOCATION > REGION_EG')?.textContent || '';
+                    
+                    const performances = Array.from(event.querySelectorAll('PERFORMANCES > PERFORMANCE')).map(perf => {
+                        const refNo = perf.querySelector('REF_NO')?.textContent || '';
+                        const performanceDatetime = perf.querySelector('PERFORMANCE_DATETIME')?.textContent || '';
+                        const titleTC = perf.querySelector('TITLE_TC')?.textContent || '';
+                        const titleEG = perf.querySelector('TITLE_EG')?.textContent || '';
+                        const remarkTC = perf.querySelector('REMARK_TC')?.textContent || '';
+                        const remarkEG = perf.querySelector('REMARK_EG')?.textContent || '';
+                        const performanceLink = perf.querySelector('REFERENCE_LINK')?.textContent || '';
+                        
+                        return {
+                            refNo,
+                            performanceDatetime,
+                            titleTC,
+                            titleEG,
+                            remarkTC,
+                            remarkEG,
+                            performanceLink
+                        };
+                    });
+                    
+                    return {
+                        eventCode,
+                        eventTC,
+                        eventEG,
+                        startDate,
+                        endDate,
+                        referenceLink,
+                        category: {
+                            main: { tc: mainCatTC, eg: mainCatEG },
+                            sub: { tc: subCatTC, eg: subCatEG }
+                        },
+                        location: {
+                            venueCode,
+                            venueTC,
+                            venueEG,
+                            cityTC,
+                            cityEG,
+                            regionTC,
+                            regionEG
+                        },
+                        performances
+                    };
+                });
+                
+                const batchData = {
+                    sendDate: xmlDoc.querySelector('SEND_DATE')?.textContent || '',
+                    system: xmlDoc.querySelector('SYSTEM')?.textContent || '',
+                    total: parseInt(xmlDoc.querySelector('TOTAL')?.textContent || '0'),
+                    events: eventsArray
+                };
+                
+                // 保存到緩存
+                try {
+                    await saveToCache(dataDate.replaceAll('-', ''), batchData);
+                } catch (error) {
+                    console.warn('保存到緩存時出錯:', error);
+                }
+                
+                // 處理節目資料
+                processEventsData(batchData);
+                
+                // 更新介面
+                updateEventList(batchData);
+                updateStatistics();
+                updateLastUpdatedTime();
+                showNotification(`成功載入 ${eventsArray.length} 個節目資料`, 'success');
+                
+            } catch (error) {
+                console.error('載入節目資料時出錯:', error);
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>載入節目資料時出錯</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">${error.message}</p>
+                    </div>
+                `;
+                showNotification('載入節目資料時出錯，請稍後再試', 'error');
+            }
+        }
+        
+        // 處理節目資料
+        function processEventsData(data) {
+            eventsData = data.events || [];
+            categoriesSet.clear();
+            totalPerformances = 0;
+            
+            eventsData.forEach(event => {
+                categoriesSet.add(event.category.main.tc);
+                totalPerformances += event.performances.length;
+            });
+        }
+        
+        // 更新統計數據
+        function updateStatistics() {
+            document.getElementById('total-events').textContent = eventsData.length;
+            document.getElementById('total-performances').textContent = totalPerformances;
+            document.getElementById('total-categories').textContent = categoriesSet.size;
+        }
+        
+        // 更新節目列表
+        function updateEventList(data) {
+            const container = document.getElementById('accordion-container');
+            const events = data.events || [];
+            
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>該日期沒有節目資料</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">請嘗試其他日期</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const showEmptyCategories = document.getElementById('showEmptyCategories').checked;
+            const groupByCategory = document.getElementById('groupByCategory').checked;
+            
+            if (!groupByCategory) {
+                // 平鋪顯示所有節目
+                let eventsHTML = '';
+                events.forEach((event, index) => {
+                    eventsHTML += createEventItemHTML(event, index, false);
+                });
+                container.innerHTML = `
+                    <div class="event-list">
+                        ${eventsHTML}
+                    </div>
+                `;
+                return;
+            }
+            
+            // 按分類分組
+            const groupedByCategory = {};
+            events.forEach(event => {
+                const mainCat = event.category.main.tc || '未分類';
+                const subCat = event.category.sub.tc || '未分類';
+                const city = event.location.cityTC || '未指定城市';
+                const region = event.location.regionTC || '未指定地區';
+                
+                if (!groupedByCategory[mainCat]) {
+                    groupedByCategory[mainCat] = {};
+                }
+                if (!groupedByCategory[mainCat][subCat]) {
+                    groupedByCategory[mainCat][subCat] = {};
+                }
+                if (!groupedByCategory[mainCat][subCat][city]) {
+                    groupedByCategory[mainCat][subCat][city] = {};
+                }
+                if (!groupedByCategory[mainCat][subCat][city][region]) {
+                    groupedByCategory[mainCat][subCat][city][region] = [];
+                }
+                groupedByCategory[mainCat][subCat][city][region].push(event);
+            });
+            
+            let accordionHTML = '';
+            let categoryIndex = 0;
+            
+            Object.keys(groupedByCategory).forEach(mainCat => {
+                const subCategories = groupedByCategory[mainCat];
+                const subCatKeys = Object.keys(subCategories);
+                
+                if (!showEmptyCategories && subCatKeys.length === 0) return;
+                
+                accordionHTML += `
+                    <div class="event-group" data-category="${mainCat}">
+                        <div class="category-header" onclick="toggleAccordion(this)">
+                            <div>
+                                <i class="fas fa-tags" style="margin-right: 8px;"></i>
+                                <span>${mainCat || '未分類'} (${subCatKeys.length} 個子分類)</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="category-content" style="display: none;">
+                `;
+                
+                let subCategoryIndex = 0;
+                subCatKeys.forEach(subCat => {
+                    const cities = subCategories[subCat];
+                    const cityKeys = Object.keys(cities);
+                    
+                    accordionHTML += `
+                        <div class="subcategory-group">
+                            <div class="subcategory-header" onclick="toggleAccordion(this)">
+                                <div>
+                                    <i class="fas fa-tag" style="margin-right: 8px;"></i>
+                                    <span>${subCat || '未分類'} (${cityKeys.length} 個城市)</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="subcategory-content" style="display: none;">
+                    `;
+                    
+                    cityKeys.forEach(city => {
+                        const regions = cities[city];
+                        const regionKeys = Object.keys(regions);
+                        
+                        // 轉義城市名稱中的特殊字符，用於 ID
+                        const cityId = city.replace(/[^a-zA-Z0-9]/g, '_');
+                        
+                        accordionHTML += `
+                            <div class="location-group">
+                                <div class="location-header" onclick="toggleAccordion(this)">
+                                    <div>
+                                        <i class="fas fa-city" style="margin-right: 8px;"></i>
+                                        <span>${city} (${regionKeys.length} 個地區)</span>
+                                    </div>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="location-content" style="display: none;">
+                        `;
+                        
+                        regionKeys.forEach(region => {
+                            const regionEvents = regions[region];
+                            // 轉義地區名稱中的特殊字符，用於 ID
+                            const regionId = region.replace(/[^a-zA-Z0-9]/g, '_');
+                            
+                            accordionHTML += `
+                                <div class="region-group">
+                                    <div class="region-header" onclick="toggleAccordion(this)">
+                                        <div>
+                                            <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i>
+                                            <span>${region} (${regionEvents.length} 個節目)</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="event-list" style="display: none;">
+                            `;
+                            
+                            regionEvents.forEach((event, eventIndex) => {
+                                accordionHTML += createEventItemHTML(event, `${categoryIndex}-${subCategoryIndex}-${cityId}-${regionId}-${eventIndex}`, true);
+                            });
+                            
+                            accordionHTML += `
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        accordionHTML += `
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    accordionHTML += `
+                            </div>
+                        </div>
+                    `;
+                    subCategoryIndex++;
+                });
+                
+                accordionHTML += `
+                        </div>
+                    </div>
+                `;
+                categoryIndex++;
+            });
+            
+            container.innerHTML = accordionHTML;
+        }
+        
+        // 創建節目項目 HTML
+        function createEventItemHTML(event, index, inGroup = false) {
+            const eventCount = event.performances.length;
+            const startDate = formatDate(event.startDate);
+            const endDate = formatDate(event.endDate);
+            
+            let performancesHTML = '';
+            if (event.performances.length > 0) {
+                performancesHTML = `
+                    <div class="performance-section">
+                        <h4 style="margin-bottom: 10px; color: #374151;">
+                            <i class="fas fa-calendar-alt"></i> 演出場次 (${eventCount})
+                        </h4>
+                        ${event.performances.map(perf => `
+                            <div class="performance-item">
+                                <div class="event-row">
+                                    <div class="event-label">場次編號:</div>
+                                    <div class="event-value">${perf.refNo || 'N/A'}</div>
+                                </div>
+                                <div class="event-row">
+                                    <div class="event-label">演出時間:</div>
+                                    <div class="event-value">${formatDateTime(perf.performanceDatetime)}</div>
+                                </div>
+                                <div class="event-row">
+                                    <div class="event-label">標題:</div>
+                                    <div class="event-value">${perf.titleTC || perf.titleEG || 'N/A'}</div>
+                                </div>
+                                <div class="event-row">
+                                    <div class="event-label">備註:</div>
+                                    <div class="event-value">${perf.remarkTC || perf.remarkEG || 'N/A'}</div>
+                                </div>
+                                <div class="event-row">
+                                    <div class="event-label">詳情連結:</div>
+                                    <div class="event-value">
+                                        <a href="${perf.performanceLink || '#'}" target="_blank" style="color: #14b8a6;">
+                                            <i class="fas fa-external-link-alt"></i> 查看詳情
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="event-item" id="event-${index}">
+                    <div class="event-meta">
+                        <span class="event-badge badge-category">
+                            <i class="fas fa-tag" style="margin-right: 4px;"></i>
+                            分類: ${event.category.main.tc} → ${event.category.sub.tc}
+                        </span>
+                        <span class="event-badge badge-date">
+                            <i class="far fa-calendar" style="margin-right: 4px;"></i>
+                            日期: ${startDate} 至 ${endDate}
+                        </span>
+                        <span class="event-badge badge-location">
+                            <i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>
+                            地點: ${event.location.cityTC} - ${event.location.regionTC}
+                        </span>
+                        ${event.referenceLink ? `
+                        <span class="event-badge badge-link">
+                            <a href="${event.referenceLink}" target="_blank" style="color: inherit; text-decoration: none;">
+                                <i class="fas fa-link" style="margin-right: 4px;"></i>
+                                節目詳情
+                            </a>
+                        </span>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="event-info">
+                        <div>
+                            <div class="event-row">
+                                <div class="event-label">節目編號:</div>
+                                <div class="event-value">${event.eventCode || 'N/A'}</div>
+                            </div>
+                            <div class="event-row">
+                                <div class="event-label">節目名稱:</div>
+                                <div class="event-value">${event.eventTC || event.eventEG || 'N/A'}</div>
+                            </div>
+                            <div class="event-row">
+                                <div class="event-label">英文名稱:</div>
+                                <div class="event-value">${event.eventEG || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="event-row">
+                                <div class="event-label">演出場地:</div>
+                                <div class="event-value">${event.location.venueTC || event.location.venueEG || 'N/A'}</div>
+                            </div>
+                            <div class="event-row">
+                                <div class="event-label">場地編號:</div>
+                                <div class="event-value">${event.location.venueCode || 'N/A'}</div>
+                            </div>
+                            <div class="event-row">
+                                <div class="event-label">場次數量:</div>
+                                <div class="event-value">${eventCount}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${performancesHTML}
+                </div>
+            `;
+        }
+        
+        // 通用的折疊/展開函數
+        function toggleAccordion(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const icon = headerElement.querySelector('.fa-chevron-down, .fa-chevron-up');
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                headerElement.classList.add('active');
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                content.style.display = 'none';
+                headerElement.classList.remove('active');
+                icon.className = 'fas fa-chevron-down';
+            }
+        }
+        
+        // 舊的折疊函數保持兼容性（如果需要）
+        function toggleCategoryGroup(index) {
+            const header = document.querySelector(`.category-header:nth-of-type(${index + 1})`);
+            if (header) toggleAccordion(header);
+        }
+        
+        function toggleSubcategoryGroup(categoryIndex, subCategoryIndex) {
+            // 查找對應的 subcategory header
+            const categoryGroup = document.querySelectorAll('.event-group')[categoryIndex];
+            if (categoryGroup) {
+                const subcategoryHeaders = categoryGroup.querySelectorAll('.subcategory-header');
+                if (subcategoryHeaders[subCategoryIndex]) {
+                    toggleAccordion(subcategoryHeaders[subCategoryIndex]);
+                }
+            }
+        }
+        
+        function toggleLocationGroup(categoryIndex, subCategoryIndex, cityIndex) {
+            // 查找對應的 location header
+            const categoryGroup = document.querySelectorAll('.event-group')[categoryIndex];
+            if (categoryGroup) {
+                const subcategoryGroups = categoryGroup.querySelectorAll('.subcategory-group');
+                if (subcategoryGroups[subCategoryIndex]) {
+                    const locationHeaders = subcategoryGroups[subCategoryIndex].querySelectorAll('.location-header');
+                    if (locationHeaders[cityIndex]) {
+                        toggleAccordion(locationHeaders[cityIndex]);
+                    }
+                }
+            }
+        }
+        
+        function toggleRegionGroup(categoryIndex, subCategoryIndex, cityIndex, regionIndex) {
+            // 查找對應的 region header
+            const categoryGroup = document.querySelectorAll('.event-group')[categoryIndex];
+            if (categoryGroup) {
+                const subcategoryGroups = categoryGroup.querySelectorAll('.subcategory-group');
+                if (subcategoryGroups[subCategoryIndex]) {
+                    const locationGroups = subcategoryGroups[subCategoryIndex].querySelectorAll('.location-group');
+                    if (locationGroups[cityIndex]) {
+                        const regionHeaders = locationGroups[cityIndex].querySelectorAll('.region-header');
+                        if (regionHeaders[regionIndex]) {
+                            toggleAccordion(regionHeaders[regionIndex]);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const year = dateString.substring(0, 4);
+                const month = dateString.substring(4, 6);
+                const day = dateString.substring(6, 8);
+                return `${year}-${month}-${day}`;
+            } catch (error) {
+                return dateString;
+            }
+        }
+        
+        // 格式化日期時間
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            try {
+                const date = new Date(dateTimeString);
+                return date.toLocaleString('zh-HK', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+            } catch (error) {
+                return dateTimeString;
+            }
+        }
+        
+        // 顯示通知
+        function showNotification(message, type = 'info') {
+            // 移除現有通知
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 創建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            // 添加到文檔
+            document.body.appendChild(notification);
+            
+            // 3秒後移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // 初始化教程
+        if (!localStorage.getItem('eventTutorialShown')) {
+            setTimeout(() => {
+                showNotification(
+                    "歡迎使用「城市售票網節目」查詢系統！\n" +
+                    "• 選擇數據日期以查看節目資料\n" +
+                    "• 支持按分類、子分類、城市、地區分組顯示\n" +
+                    "• 點擊分組標題可展開/收起詳細資訊\n" +
+                    "• 使用 IndexedDB 緩存技術提升載入速度", 
+                    'info'
+                );
+                localStorage.setItem('eventTutorialShown', 'true');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
