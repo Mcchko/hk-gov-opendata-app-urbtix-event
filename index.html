@@ -807,8 +807,14 @@
                 const response = await fetch(`${PROXY_URL}/${DATA_SOURCE_URL}`);
                 
                 if (!response.ok) {
-                    alert(`請瀏覽 ${PROXY_URL}，啟用 Proxy。`);
-                    window.open(PROXY_URL, "_blank");
+                    container.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>請先訪問 <a href="${PROXY_URL}" target="_blank">${PROXY_URL}</a></p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">點擊「Request temporary access to the demo server」按鈕啟用代理伺服器</p>
+                        </div>
+                    `;
+                    showNotification('請啟用 CORS Anywhere 代理伺服器', 'error');
                     return;
                 }
                 
